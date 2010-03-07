@@ -347,10 +347,6 @@ module Formtastic #:nodoc:
         template.content_tag(:button, text, button_html)
       else
         template.send(button_tag, text, button_html)
-      # when :button
-      #   template.content_tag(:button, text, button_html)
-      # when :pretty_button
-      #   template.pretty_button(text, button_html)
       end
       template.content_tag(:li, button_tag_content, :class => element_class)
     end
