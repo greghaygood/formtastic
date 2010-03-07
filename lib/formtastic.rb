@@ -20,10 +20,11 @@ module Formtastic #:nodoc:
     @@priority_currencies = ["US Dollar", "Euro"]
     @@i18n_lookups_by_default = false
     @@default_commit_button_accesskey = nil
+    @@default_button_tag = :input
 
     cattr_accessor :default_text_field_size, :default_text_area_height, :all_fields_required_by_default, :include_blank_for_select_by_default,
                    :required_string, :optional_string, :inline_errors, :label_str_method, :collection_label_methods,
-                   :inline_order, :file_methods, :priority_countries, :priority_currencies, :i18n_lookups_by_default, :default_commit_button_accesskey
+                   :inline_order, :file_methods, :priority_countries, :priority_currencies, :i18n_lookups_by_default, :default_commit_button_accesskey, :default_button_tag
 
     RESERVED_COLUMNS = [:created_at, :updated_at, :created_on, :updated_on, :lock_version, :version]
 
@@ -336,7 +337,22 @@ module Formtastic #:nodoc:
       element_class = ['commit', options.delete(:class)].compact.join(' ') # TODO: Add class reflecting on form action.
       accesskey = (options.delete(:accesskey) || @@default_commit_button_accesskey) unless button_html.has_key?(:accesskey)
       button_html = button_html.merge(:accesskey => accesskey) if accesskey
-      template.content_tag(:li, self.submit(text, button_html), :class => element_class)
+
+      button_tag = options.delete(:tag) || @@default_button_tag
+      logger.debug { "using button_tag: #{button_tag}" }
+      button_tag_content = 
+      if button_tag == :input
+        self.submit(text, button_html)
+      elsif  button_tag == :button
+        template.content_tag(:button, text, button_html)
+      else
+        template.send(button_tag, text, button_html)
+      # when :button
+      #   template.content_tag(:button, text, button_html)
+      # when :pretty_button
+      #   template.pretty_button(text, button_html)
+      end
+      template.content_tag(:li, button_tag_content, :class => element_class)
     end
 
     # A thin wrapper around #fields_for to set :builder => Formtastic::SemanticFormBuilder
